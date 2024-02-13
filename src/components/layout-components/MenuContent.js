@@ -5,11 +5,7 @@ import IntlMessage from "../util-components/IntlMessage";
 import Icon from "../util-components/Icon";
 import navigationConfig from "configs/NavigationConfig";
 import { connect } from "react-redux";
-import {
-  SIDE_NAV_LIGHT,
-  NAV_TYPE_SIDE,
-  SIDE_NAV_WIDTH,
-} from "constants/ThemeConstant";
+import { SIDE_NAV_LIGHT, NAV_TYPE_SIDE } from "constants/ThemeConstant";
 import utils from "utils";
 import { onMobileNavToggle } from "redux/actions/Theme";
 
@@ -52,8 +48,6 @@ const SideNavContent = (props) => {
       theme={sideNavTheme === SIDE_NAV_LIGHT ? "light" : "dark"}
       mode="inline"
       style={{
-        position: "fixed",
-        width: `${SIDE_NAV_WIDTH}px`,
         height: "100%",
         borderRight: 0,
       }}
