@@ -1,35 +1,34 @@
-import React, { Component, useState } from "react";
-import { Card, Table, Tag, Tooltip, message, Button } from "antd";
-import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import { Card, Table, Tooltip, message, Button } from "antd";
+import {
+  EyeOutlined,
+  DeleteOutlined,
+  HomeOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import moment from "moment";
-import UserView from "./UserView";
 import AvatarStatus from "components/shared-components/AvatarStatus";
-import userData from "assets/data/user-list.data.json";
+import clientsService from "services/ClientsService";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { APP_PREFIX_PATH } from "configs/AppConfig";
 
 const UserList = () => {
-  const [users, setUsers] = useState(userData);
-  const [userProfile, setUserProfile] = useState({
-    isVisible: false,
-    selected: null,
-  });
+  const [users, setUsers] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const history = useHistory();
+
+  useEffect(() => {
+    clientsService
+      .getUsers()
+      .then((res) => {
+        setUsers(res);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
 
   const deleteUser = (userId) => {
     setUsers((prevUsers) => prevUsers.filter((item) => item.id !== userId));
     message.success({ content: `Deleted user ${userId}`, duration: 2 });
-  };
-
-  const showUserProfile = (userInfo) => {
-    setUserProfile({
-      userProfileVisible: true,
-      selectedUser: userInfo,
-    });
-  };
-
-  const closeUserProfile = () => {
-    this.setState({
-      userProfileVisible: false,
-      selectedUser: null,
-    });
   };
 
   const tableColumns = [
@@ -39,7 +38,8 @@ const UserList = () => {
       render: (_, record) => (
         <div className="d-flex">
           <AvatarStatus
-            src={record.img}
+            src={record.img | null}
+            icon={<UserOutlined />}
             name={record.name}
             subTitle={record.email}
           />
@@ -54,33 +54,22 @@ const UserList = () => {
       },
     },
     {
-      title: "Role",
-      dataIndex: "role",
-      sorter: {
-        compare: (a, b) => a.role.length - b.role.length,
-      },
+      title: "Website",
+      dataIndex: "website",
     },
     {
-      title: "Last online",
-      dataIndex: "lastOnline",
-      render: (date) => <span>{moment.unix(date).format("MM/DD/YYYY")} </span>,
+      title: "Address",
+      dataIndex: "address",
+      render: (date) => (
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <HomeOutlined />
+          <div style={{ display: "flex" }}>
+            <span>{date.street}</span>,<span>{date.city}</span>
+          </div>
+        </div>
+      ),
       sorter: (a, b) =>
         moment(a.lastOnline).unix() - moment(b.lastOnline).unix(),
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      render: (status) => (
-        <Tag
-          className="text-capitalize"
-          color={status === "active" ? "cyan" : "red"}
-        >
-          {status}
-        </Tag>
-      ),
-      sorter: {
-        compare: (a, b) => a.status.length - b.status.length,
-      },
     },
     {
       title: "",
@@ -93,7 +82,9 @@ const UserList = () => {
               className="mr-2"
               icon={<EyeOutlined />}
               onClick={() => {
-                showUserProfile(elm);
+                history.push(
+                  `${APP_PREFIX_PATH}/dashboard/clients/user-edit/${elm.id}`
+                );
               }}
               size="small"
             />
@@ -115,13 +106,11 @@ const UserList = () => {
 
   return (
     <Card bodyStyle={{ padding: "0px" }}>
-      <Table columns={tableColumns} dataSource={users} rowKey="id" />
-      <UserView
-        data={userProfile.selected}
-        visible={userProfile.isVisible}
-        close={() => {
-          closeUserProfile();
-        }}
+      <Table
+        loading={isLoading}
+        columns={tableColumns}
+        dataSource={users}
+        rowKey="id"
       />
     </Card>
   );

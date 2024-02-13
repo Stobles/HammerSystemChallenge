@@ -9,6 +9,10 @@ const Project = ({ match }) => {
         path={`${match.url}/user-list`}
         component={lazy(() => import(`./user-list`))}
       />
+      <Route
+        path={`${match.url}/user-edit/:id`}
+        component={lazy(() => import(`./user-edit`))}
+      />
     </Switch>
   );
 };

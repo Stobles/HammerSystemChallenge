@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { Avatar, Drawer, Divider } from "antd";
 import {
   MobileOutlined,
